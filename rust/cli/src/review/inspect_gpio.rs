@@ -88,6 +88,12 @@ pub(super) fn served_entries(image: &ParsedDevice, board: &Board) -> Vec<GpioEnt
         num_addr_pins,
         ..
     }
+    | OneromAlgAddrConfig::AlgAddr1 {
+        gpio_base: addr_base,
+        base_addr_pin,
+        num_addr_pins,
+        ..
+    }
     | OneromAlgAddrConfig::Unknown {
         gpio_base: addr_base,
         base_addr_pin,

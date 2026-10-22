@@ -56,7 +56,8 @@ const uint8_t alg_cs_params_len[NUM_CS_ALGS] = {
     ALG_CS2_PARAMS_LEN
 };
 const uint8_t alg_addr_params_len[NUM_ADDR_ALGS] = {
-    ALG_ADDR0_PARAMS_PRE_LIST_LEN
+    ALG_ADDR0_PARAMS_PRE_LIST_LEN,
+    ALG_ADDR1_PARAMS_LEN
 };
 const uint8_t alg_data_params_len[NUM_DATA_ALGS] = {
     ALG_DATA0_PARAMS_LEN,
@@ -101,6 +102,12 @@ const char * const chip_type_strings[NUM_CHIP_TYPES] = {
     "23QL384",
     "23C1001",
     "27C200",
+    "HM7641",
+    "62256",
+    "23C1010",
+    "27C400Pin31A17",
+    "27C200Pin31NC",
+    "87C257",
 };
 STATIC_ASSERT(sizeof(chip_type_strings)/sizeof(chip_type_strings[0]) == NUM_CHIP_TYPES,
                "chip_type_strings size doesn't match NUM_CHIP_TYPES");

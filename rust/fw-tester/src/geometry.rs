@@ -215,6 +215,12 @@ pub fn slot_geometry(
             num_addr_pins,
             ..
         }
+        | OneromAlgAddrConfig::AlgAddr1 {
+            gpio_base,
+            base_addr_pin,
+            num_addr_pins,
+            ..
+        }
         | OneromAlgAddrConfig::Unknown {
             gpio_base,
             base_addr_pin,

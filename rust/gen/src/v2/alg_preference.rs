@@ -47,6 +47,7 @@ pub enum CsAlgPreference {
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
 pub enum AddrAlgPreference {
     AlgAddr0 = 0,
+    AlgAddr1 = 1,
 }
 
 /// Data algorithm preference: lower = simpler = preferred.
@@ -131,6 +132,7 @@ impl From<&OneromAlgAddrConfig> for AddrAlgPreference {
     fn from(alg: &OneromAlgAddrConfig) -> Self {
         match alg {
             OneromAlgAddrConfig::AlgAddr0 { .. } => Self::AlgAddr0,
+            OneromAlgAddrConfig::AlgAddr1 { .. } => Self::AlgAddr1,
             OneromAlgAddrConfig::Unknown { alg, .. } => unnamed("address", *alg),
         }
     }

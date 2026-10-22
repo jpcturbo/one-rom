@@ -79,6 +79,9 @@ Some greater pin count ROMs can be emulated by a smaller One ROM, provided the R
 | 27LC256 | 32KB | 64KB | 64KB | 64KB | 64KB |
 | 27SF256 | 32KB | 64KB | 64KB | 64KB | 64KB |
 | 28C256 | 32KB | 32KB | 32KB | 32KB | 32KB |
+| 87C257 | 32KB | 64KB | 64KB | 64KB | 64KB |
+| M87C257 | 32KB | 64KB | 64KB | 64KB | 64KB |
+| NMC87C257 | 32KB | 64KB | 64KB | 64KB | 64KB |
 | 23QL384 | 48KB | 128KB | 128KB | 256KB | 256KB |
 | 23512 | 64KB | 64KB | 64KB | 64KB | 64KB |
 | 23QL512 | 64KB | 128KB | 128KB | 256KB | 256KB |
@@ -174,6 +177,9 @@ Some greater pin count ROMs can be emulated by a smaller One ROM, provided the R
 | 27LC256 | 32KB | 256KB* | 32KB* | 32KB* |
 | 27SF256 | 32KB | 256KB* | 32KB* | 32KB* |
 | 28C256 | 32KB | 256KB* | 64KB* | 64KB* |
+| 87C257 | 32KB | 256KB* | 32KB* | 32KB* |
+| M87C257 | 32KB | 256KB* | 32KB* | 32KB* |
+| NMC87C257 | 32KB | 256KB* | 32KB* | 32KB* |
 | 23512 | 64KB | 256KB* | 64KB* | 64KB* |
 | 27512 | 64KB | 256KB* | 64KB* | 64KB* |
 | 27C512 | 64KB | 256KB* | 64KB* | 64KB* |
@@ -514,6 +520,9 @@ Every fit other than `native` is a cross-size fit, and in all of them One ROM's 
 | 27LC256 | 32KB | 64KB | native |
 | 27SF256 | 32KB | 64KB | native |
 | 28C256 | 32KB | 32KB | native |
+| 87C257 | 32KB | 64KB | native |
+| M87C257 | 32KB | 64KB | native |
+| NMC87C257 | 32KB | 64KB | native |
 | 23QL384 | 48KB | 128KB | native |
 | 23512 | 64KB | 64KB | native |
 | 23QL512 | 64KB | 128KB | native |
@@ -573,6 +582,9 @@ Every fit other than `native` is a cross-size fit, and in all of them One ROM's 
 | 27LC256 | 32KB | 64KB | native |
 | 27SF256 | 32KB | 64KB | native |
 | 28C256 | 32KB | 32KB | native |
+| 87C257 | 32KB | 64KB | native |
+| M87C257 | 32KB | 64KB | native |
+| NMC87C257 | 32KB | 64KB | native |
 | 23QL384 | 48KB | 128KB | native |
 | 23512 | 64KB | 64KB | native |
 | 23QL512 | 64KB | 128KB | native |
@@ -632,6 +644,9 @@ Every fit other than `native` is a cross-size fit, and in all of them One ROM's 
 | 27LC256 | 32KB | 64KB | native |
 | 27SF256 | 32KB | 64KB | native |
 | 28C256 | 32KB | 32KB | native |
+| 87C257 | 32KB | 64KB | native |
+| M87C257 | 32KB | 64KB | native |
+| NMC87C257 | 32KB | 64KB | native |
 | 23QL384 | 48KB | 256KB | native |
 | 23512 | 64KB | 64KB | native |
 | 23QL512 | 64KB | 256KB | native |
@@ -699,6 +714,9 @@ Every fit other than `native` is a cross-size fit, and in all of them One ROM's 
 | 27LC256 | 32KB | 64KB | native |
 | 27SF256 | 32KB | 64KB | native |
 | 28C256 | 32KB | 32KB | native |
+| 87C257 | 32KB | 64KB | native |
+| M87C257 | 32KB | 64KB | native |
+| NMC87C257 | 32KB | 64KB | native |
 | 23QL384 | 48KB | 256KB | native |
 | 23512 | 64KB | 64KB | native |
 | 23QL512 | 64KB | 256KB | native |
@@ -789,6 +807,9 @@ Every fit other than `native` is a cross-size fit, and in all of them One ROM's 
 | 27LC256 | 32KB | 256KB | overhang |
 | 27SF256 | 32KB | 256KB | overhang |
 | 28C256 | 32KB | 256KB | overhang |
+| 87C257 | 32KB | 256KB | overhang |
+| M87C257 | 32KB | 256KB | overhang |
+| NMC87C257 | 32KB | 256KB | overhang |
 | 23512 | 64KB | 256KB | overhang |
 | 27512 | 64KB | 256KB | overhang |
 | 27C512 | 64KB | 256KB | overhang |
@@ -861,6 +882,9 @@ Every fit other than `native` is a cross-size fit, and in all of them One ROM's 
 | 27LC256 | 32KB | 32KB | overhang |
 | 27SF256 | 32KB | 32KB | overhang |
 | 28C256 | 32KB | 64KB | overhang |
+| 87C257 | 32KB | 32KB | overhang |
+| M87C257 | 32KB | 32KB | overhang |
+| NMC87C257 | 32KB | 32KB | overhang |
 | 23512 | 64KB | 64KB | overhang |
 | 27512 | 64KB | 64KB | overhang |
 | 27C512 | 64KB | 64KB | overhang |
@@ -932,6 +956,9 @@ Every fit other than `native` is a cross-size fit, and in all of them One ROM's 
 | 27LC256 | 32KB | 32KB | overhang |
 | 27SF256 | 32KB | 32KB | overhang |
 | 28C256 | 32KB | 64KB | overhang |
+| 87C257 | 32KB | 32KB | overhang |
+| M87C257 | 32KB | 32KB | overhang |
+| NMC87C257 | 32KB | 32KB | overhang |
 | 23512 | 64KB | 64KB | overhang |
 | 27512 | 64KB | 64KB | overhang |
 | 27C512 | 64KB | 64KB | overhang |

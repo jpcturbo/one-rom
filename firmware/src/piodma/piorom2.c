@@ -28,6 +28,7 @@ typedef struct {
     uint8_t ignore_cs_index;
 
     uint8_t byte_pin;
+    uint8_t as_pin;
 
     uint8_t num_pulls;
     const uint8_t *pulls;
@@ -107,6 +108,7 @@ static uint8_t retrieve_gpio_init(const onerom_rom_slot_t *slot, gpio_init_t *gp
     gpio_init->base_addr_pin = 0xFF;
     gpio_init->base_cs_pin = 0xFF;
     gpio_init->byte_pin = 0xFF;
+    gpio_init->as_pin = 0xFF;
     gpio_init->num_addr_pins = 0;
     gpio_init->num_data_pins = 0;
     gpio_init->num_cs_pins = 0;
@@ -160,6 +162,12 @@ static uint8_t retrieve_gpio_init(const onerom_rom_slot_t *slot, gpio_init_t *gp
     switch (slot->alg->alg_addr->alg) {
         case ALG_ADDR_0: {
             // No additional configuration to handle
+            break;
+        }
+
+        case ALG_ADDR_1: {
+            const onerom_alg_addr1_param_t *params = (const onerom_alg_addr1_param_t*)slot->alg->alg_addr->params;
+            gpio_init->as_pin = params->as_pin + addr_alg->gpio_base;
             break;
         }
 
@@ -233,6 +241,13 @@ ora_result_t pio_get_gpio_use(
         return ORA_RESULT_OK;
     }
 
+    // AS pin (address strobe). Sits outside the address span, read by the
+    // address state machine.
+    if (gpio_init.as_pin < MAX_GPIOS && gpio == gpio_init.as_pin) {
+        *use_out = ORA_GPIO_USE_SERVING_READ;
+        return ORA_RESULT_OK;
+    }
+
     // A forced pin can be in the address span so is checked before it.  An
     // inverted pin is still read and falls through.
     if (gpio_init.overrides != NULL) {
@@ -270,12 +285,13 @@ int setup_serving_gpios(const onerom_rom_slot_t *slot) {
         return rc;
     }
 
-    DEBUG("GPIO: data=%u+%u addr=%u+%u cs=%u+%u(ign=%u) byte=%u pulls=%u ovrd=%u",
+    DEBUG("GPIO: data=%u+%u addr=%u+%u cs=%u+%u(ign=%u) byte=%u as=%u pulls=%u ovrd=%u",
         gpio_init.base_data_pin, gpio_init.num_data_pins,
         gpio_init.base_addr_pin, gpio_init.num_addr_pins,
         gpio_init.base_cs_pin, gpio_init.num_cs_pins,
         gpio_init.ignore_cs_index,
         gpio_init.byte_pin,
+        gpio_init.as_pin,
         gpio_init.num_pulls,
         gpio_init.num_overrides);
 
@@ -314,6 +330,12 @@ int setup_serving_gpios(const onerom_rom_slot_t *slot) {
     // Byte pin: input-only, output driver disabled
     if (gpio_init.byte_pin < MAX_GPIOS) {
         uint8_t pin = gpio_init.byte_pin;
+        APIO_GPIO_INPUT_ONLY(pin);
+    }
+
+    // AS pin: input-only, output driver disabled
+    if (gpio_init.as_pin < MAX_GPIOS) {
+        uint8_t pin = gpio_init.as_pin;
         APIO_GPIO_INPUT_ONLY(pin);
     }
 
@@ -516,6 +538,46 @@ int setup_serving_pios(const onerom_rom_slot_t *slot, uint32_t rom_table_addr) {
 
                 // Configure the SM registers
                 APIO_SM_EXECCTRL_SET(0);
+                APIO_SM_SHIFTCTRL_SET(
+                    APIO_IN_COUNT(addr_alg->num_addr_pins) |
+                    APIO_AUTOPUSH |
+                    APIO_PUSH_THRESH(32) |
+                    APIO_IN_SHIFTDIR_L |
+                    APIO_OUT_SHIFTDIR_L
+                );
+                APIO_SM_PINCTRL_SET(APIO_IN_BASE(addr_alg->base_addr_pin));
+
+                // Now preload the ROM table RAM address into the X register
+                APIO_TXF = rom_table_prefix;
+                APIO_SM_EXEC_INSTR(APIO_PULL_BLOCK);
+                APIO_SM_EXEC_INSTR(APIO_MOV_X_OSR);
+            }
+            break;
+
+        case ALG_ADDR_1: {
+                const onerom_alg_addr1_param_t *params = (const onerom_alg_addr1_param_t*)slot->alg->alg_addr->params;
+                uint8_t rom_table_prefix_bits = 32 - addr_alg->num_rom_table_bits;
+                uint32_t rom_table_prefix = rom_table_addr >> (32 - rom_table_prefix_bits);
+                int8_t extra_addr_bits = addr_alg->num_rom_table_bits - addr_alg->num_addr_pins;
+                DEBUG("ROM table prefix 0x%08lX, # bits: %u, as_pin: %u",
+                      (unsigned long)rom_table_prefix, rom_table_prefix_bits, params->as_pin);
+
+                // Write the SM instructions
+                APIO_LABEL_NEW(start);
+                APIO_WRAP_BOTTOM();
+                APIO_ADD_INSTR(APIO_ADD_DELAY(APIO_IN_X(rom_table_prefix_bits), addr_alg->num_delay_cycles));
+                APIO_ADD_INSTR(APIO_IN_PINS(addr_alg->num_addr_pins));
+                for (int ii = extra_addr_bits; ii > 0; ii--) {
+                    APIO_ADD_INSTR(APIO_IN_NULL(1));
+                }
+                APIO_ADD_INSTR(APIO_JMP_PIN(APIO_LABEL(start)));
+                APIO_LABEL_NEW(wait_high);
+                APIO_ADD_INSTR(APIO_JMP_PIN(APIO_LABEL(start)));
+                APIO_WRAP_TOP();
+                APIO_ADD_INSTR(APIO_JMP(APIO_LABEL(wait_high)));
+
+                // Configure the SM registers
+                APIO_SM_EXECCTRL_SET(APIO_EXECCTRL_JMP_PIN(params->as_pin));
                 APIO_SM_SHIFTCTRL_SET(
                     APIO_IN_COUNT(addr_alg->num_addr_pins) |
                     APIO_AUTOPUSH |

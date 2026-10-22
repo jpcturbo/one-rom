@@ -58,8 +58,17 @@ pub fn used_gpios(alg: &OneromAlgConfig) -> u64 {
     {
         used |= span(gpio_base.saturating_add(byte_pin), 1);
     }
+    if let OneromAlgAddrConfig::AlgAddr1 { gpio_base: abase, as_pin, .. } = alg.alg_addr {
+        used |= span(abase.saturating_add(as_pin), 1);
+    }
 
     let (OneromAlgAddrConfig::AlgAddr0 {
+        gpio_base,
+        base_addr_pin,
+        num_addr_pins,
+        ..
+    }
+    | OneromAlgAddrConfig::AlgAddr1 {
         gpio_base,
         base_addr_pin,
         num_addr_pins,

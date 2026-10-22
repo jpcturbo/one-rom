@@ -260,6 +260,7 @@ test_28_all_rom_types() {
     run_no_cs  $board images/test/rand_16KB.rom  type=27128
     run_no_cs  $board images/test/rand_32KB.rom  type=27256
     run_no_cs  $board images/test/rand_64KB.rom  type=27512
+    run_no_cs  $board images/test/rand_32KB.rom  type=87C257
 }
 
 test_32pin() {

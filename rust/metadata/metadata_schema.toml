@@ -398,6 +398,12 @@ value = 0
 comment = "Parameter byte length for address algorithm 0 (none)"
 
 [[constants]]
+name = "ALG_ADDR1_PARAMS_LEN"
+type = "usize"
+value = 1
+comment = "Parameter byte length for address algorithm 1 (latched AS pin)"
+
+[[constants]]
 name = "ALG_DATA0_PARAMS_LEN"
 type = "usize"
 value = 0
@@ -1151,8 +1157,13 @@ value = 0
 comment = "Standard address reading algorithm"
 
 [[enums.variants]]
-name = "NUM_ADDR_ALGS"
+name = "ALG_ADDR_1"
 value = 1
+comment = "Latched address reading algorithm with AS pin"
+
+[[enums.variants]]
+name = "NUM_ADDR_ALGS"
+value = 2
 sentinel = true
 comment = "Count of address algorithms. Not a valid algorithm."
 
@@ -2561,6 +2572,17 @@ discriminant = "ALG_ADDR_0"
 comment = "Standard address reading algorithm. No parameters."
 params_len_constant = "ALG_ADDR0_PARAMS_PRE_LIST_LEN"
 # No variant fields
+
+[[tagged_fams.variants]]
+discriminant = "ALG_ADDR_1"
+comment = "Latched address reading algorithm with AS pin"
+params_len_constant = "ALG_ADDR1_PARAMS_LEN"
+
+[[tagged_fams.variants.fields]]
+name = "as_pin"
+kind = "scalar"
+type = "u8"
+comment = "Address Strobe (AS) GPIO pin offset within PIO window"
 
 # ---
 

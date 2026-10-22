@@ -124,7 +124,7 @@ pub fn chip_family(type_name: &str, chip_type: &ChipType) -> Option<&'static Chi
     } else {
         let family = if type_name.starts_with("23") {
             "mask"
-        } else if type_name.starts_with("27") || type_name.starts_with("SST39SF") {
+        } else if type_name.starts_with("27") || type_name.starts_with("SST39SF") || type_name.starts_with("87") {
             "eprom"
         } else if type_name.starts_with("28") {
             "eeprom"

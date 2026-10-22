@@ -165,7 +165,11 @@ pub fn build_alg_data(
 /// `num_delay_cycles` is 2 for `AlgData0` (8-bit, or 16-bit with
 /// `force_16_bit` - neither needs the extra cycles `AlgData1`'s `/BYTE`+
 /// A-1 read takes), 4 for `AlgData1`.
-pub fn build_alg_addr(layout: &AddrLayout, alg_data: &OneromAlgDataConfig) -> OneromAlgAddrConfig {
+pub fn build_alg_addr(
+    layout: &AddrLayout,
+    alg_data: &OneromAlgDataConfig,
+    as_gpio: Option<u8>,
+) -> OneromAlgAddrConfig {
     // The rom table itself uses 1 more address bit than the number of address
     // pins in 16-bit mode, which is AlgData1.  The address read algorithm
     // adds that extra bit manually as a 0.
@@ -195,14 +199,28 @@ pub fn build_alg_addr(layout: &AddrLayout, alg_data: &OneromAlgDataConfig) -> On
     let pio_base: u8 = if layout.gpio_base < 16 { 0 } else { 16 };
     let base_addr_pin = layout.gpio_base - pio_base;
 
-    OneromAlgAddrConfig::AlgAddr0 {
-        clkdiv_int: DEFAULT_CLKDIV_INT,
-        clkdiv_frac: DEFAULT_CLKDIV_FRAC,
-        gpio_base: pio_base,
-        num_delay_cycles,
-        base_addr_pin,
-        num_addr_pins: layout.num_addr_pins,
-        num_rom_table_bits,
+    if let Some(as_gpio) = as_gpio {
+        let as_pin = as_gpio - pio_base;
+        OneromAlgAddrConfig::AlgAddr1 {
+            clkdiv_int: DEFAULT_CLKDIV_INT,
+            clkdiv_frac: DEFAULT_CLKDIV_FRAC,
+            gpio_base: pio_base,
+            num_delay_cycles,
+            base_addr_pin,
+            num_addr_pins: layout.num_addr_pins,
+            num_rom_table_bits,
+            as_pin,
+        }
+    } else {
+        OneromAlgAddrConfig::AlgAddr0 {
+            clkdiv_int: DEFAULT_CLKDIV_INT,
+            clkdiv_frac: DEFAULT_CLKDIV_FRAC,
+            gpio_base: pio_base,
+            num_delay_cycles,
+            base_addr_pin,
+            num_addr_pins: layout.num_addr_pins,
+            num_rom_table_bits,
+        }
     }
 }
 
@@ -268,7 +286,15 @@ pub fn build_alg_config(
         bit_mode,
         force_16_bit,
     );
-    let alg_addr = build_alg_addr(addr_layout, &alg_data);
+    let as_gpio = ctx.chip_types[0]
+        .control_lines()
+        .iter()
+        .find(|line| line.name == "as")
+        .map(|line| {
+            let socket_pin = (line.pin as i16 + ctx.pin_offset) as u8;
+            board.gpios_for_socket_pin(socket_pin)[0]
+        });
+    let alg_addr = build_alg_addr(addr_layout, &alg_data, as_gpio);
     let alg_cs = build_alg_cs(cs_data_layout, set_type, &alg_data);
     let alg_dma = build_alg_dma(bit_mode);
 
@@ -385,7 +411,7 @@ mod tests {
             }
         );
 
-        let alg_addr = build_alg_addr(&addr_layout, &alg_data);
+        let alg_addr = build_alg_addr(&addr_layout, &alg_data, None);
         assert_eq!(
             alg_addr,
             OneromAlgAddrConfig::AlgAddr0 {
@@ -654,7 +680,7 @@ mod tests {
             }
         );
 
-        let alg_addr = build_alg_addr(&addr_layout, &alg_data);
+        let alg_addr = build_alg_addr(&addr_layout, &alg_data, None);
         assert_eq!(
             alg_addr,
             OneromAlgAddrConfig::AlgAddr0 {
@@ -726,7 +752,7 @@ mod tests {
             }
         );
 
-        let alg_addr = build_alg_addr(&addr_layout, &alg_data);
+        let alg_addr = build_alg_addr(&addr_layout, &alg_data, None);
         assert_eq!(
             alg_addr,
             OneromAlgAddrConfig::AlgAddr0 {

@@ -277,6 +277,7 @@ fire-28-a 27128 single 1
 fire-28-a 23256 single 1
 fire-28-a 27256 single 1
 fire-28-a 28C256 single 0
+fire-28-a 87C257 single 1
 fire-28-a 23QL384 single 1
 fire-28-a 23512 single 0
 fire-28-a 23QL512 single 1
@@ -296,6 +297,7 @@ fire-28-b 27128 single 1
 fire-28-b 23256 single 1
 fire-28-b 27256 single 1
 fire-28-b 28C256 single 0
+fire-28-b 87C257 single 1
 fire-28-b 23QL384 single 1
 fire-28-b 23512 single 0
 fire-28-b 23QL512 single 1
@@ -354,6 +356,10 @@ fire-28-c 28C256 single 0
 fire-28-c 28C256 banked2 0
 fire-28-c 28C256 banked4 0
 fire-28-c 28C256 multi2 3
+fire-28-c 87C257 single 1
+fire-28-c 87C257 banked2 1
+fire-28-c 87C257 banked4 1
+fire-28-c 87C257 multi2 3
 fire-28-c 23QL384 single 2
 fire-28-c 23QL384 banked2 2
 fire-28-c 23512 single 0
@@ -427,6 +433,10 @@ fire-28-d 28C256 single 0
 fire-28-d 28C256 banked2 0
 fire-28-d 28C256 banked4 0
 fire-28-d 28C256 multi2 3
+fire-28-d 87C257 single 1
+fire-28-d 87C257 banked2 1
+fire-28-d 87C257 banked4 1
+fire-28-d 87C257 multi2 3
 fire-28-d 23QL384 single 2
 fire-28-d 23QL384 banked2 2
 fire-28-d 23512 single 0
@@ -460,6 +470,7 @@ fire-32-a 27128 single 4
 fire-32-a 23256 single 3
 fire-32-a 27256 single 3
 fire-32-a 28C256 single 3
+fire-32-a 87C257 single 3
 fire-32-a 23512 single 2
 fire-32-a 27512 single 2
 fire-32-a 28C512 single 2
@@ -481,6 +492,7 @@ fire-32-b 27128 single 1
 fire-32-b 23256 single 0
 fire-32-b 27256 single 0
 fire-32-b 28C256 single 1
+fire-32-b 87C257 single 0
 fire-32-b 23512 single 0
 fire-32-b 27512 single 0
 fire-32-b 28C512 single 0
@@ -504,6 +516,7 @@ fire-32-c 27128 single 1
 fire-32-c 23256 single 0
 fire-32-c 27256 single 0
 fire-32-c 28C256 single 1
+fire-32-c 87C257 single 0
 fire-32-c 23512 single 0
 fire-32-c 27512 single 0
 fire-32-c 28C512 single 0

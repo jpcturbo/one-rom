@@ -12,7 +12,7 @@ const MIN_PIN_NUMBER: u8 = 1;
 const VALID_PIN_COUNTS: &[u8] = &[24, 28, 32, 40];
 const VALID_READ_STATES: &[&str] = &["vcc", "high", "low", "chip_select", "x", "word_size"];
 const VALID_CONTROL_LINES: &[&str] = &[
-    "cs1", "cs2", "cs3", "cs4", "ce", "oe", "byte", "write", "busy",
+    "cs1", "cs2", "cs3", "cs4", "ce", "oe", "byte", "write", "busy", "as",
 ];
 
 /// Chip select lines.

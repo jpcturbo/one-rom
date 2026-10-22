@@ -116,6 +116,7 @@ pub enum CsAlg {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum AddrAlg {
     Addr0,
+    Addr1,
 }
 
 /// Data algorithm, mirroring `onerom_alg_data_t`.
@@ -133,7 +134,7 @@ const _: () = assert!(
      variant a CS-to-data cost in expected_cs_to_data"
 );
 const _: () = assert!(
-    ffi::onerom_alg_addr_t_NUM_ADDR_ALGS == 1,
+    ffi::onerom_alg_addr_t_NUM_ADDR_ALGS == 2,
     "an address algorithm was added or removed: update AddrAlg and give the \
      new variant a CS-to-data cost in expected_cs_to_data"
 );
@@ -174,6 +175,7 @@ impl Algs {
             },
             addr: match info.addr_alg {
                 AddrAlgPreference::AlgAddr0 => AddrAlg::Addr0,
+                AddrAlgPreference::AlgAddr1 => AddrAlg::Addr1,
             },
             data: match info.data_alg {
                 DataAlgPreference::AlgData0 => DataAlg::Data0,
@@ -198,6 +200,7 @@ impl Algs {
         };
         let addr = match alg.addr_alg {
             ffi::onerom_alg_addr_t_ALG_ADDR_0 => AddrAlg::Addr0,
+            ffi::onerom_alg_addr_t_ALG_ADDR_1 => AddrAlg::Addr1,
             id => {
                 return Err(UnknownAlg {
                     family: "addr",
@@ -266,7 +269,7 @@ pub const CS_BYTE_HIGH_HALF_EXTRA: u32 = 1;
 /// forces a decision here instead of silently inheriting a number measured for
 /// a different one.
 pub fn expected_cs_to_data(algs: Algs, mode: u8, cs_in_window: bool, drive_addr: usize) -> u32 {
-    let AddrAlg::Addr0 = algs.addr;
+    let (AddrAlg::Addr0 | AddrAlg::Addr1) = algs.addr;
 
     // A-1 is bit 0 of the byte address in 8-bit mode.
     let high_half = if drive_addr & 1 == 1 {

@@ -231,6 +231,12 @@ fn serving_set(alg: &OneromAlgConfig) -> Result<ServingSet, String> {
         num_addr_pins,
         ..
     }
+    | OneromAlgAddrConfig::AlgAddr1 {
+        gpio_base,
+        base_addr_pin,
+        num_addr_pins,
+        ..
+    }
     | OneromAlgAddrConfig::Unknown {
         gpio_base,
         base_addr_pin,

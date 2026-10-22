@@ -565,6 +565,7 @@ fn check_enums(current: &Schema, released: &Released) -> Result<(), Box<dyn std:
         for old in &was.variants {
             match is.variants.iter().find(|v| v.name == old.name) {
                 Some(new) if new.value == old.value => {}
+                Some(new) if new.is_sentinel() && new.value >= old.value => {}
                 Some(new) => {
                     return Err(format!(
                         "{}::{} was {} in the last release and is {} now - a released value \

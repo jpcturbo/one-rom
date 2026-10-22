@@ -15,6 +15,7 @@ In detail:
 - Add standby mode, where One ROM doesn't serve the ROM but the plugins run as normal.  Configure a slot using the `standby` option.  `onerom control standby` turns standby both on and off while One ROM is running.
 - A config can refer to a plugin name using `"plugin": "usb"` instead of a URL.  CLI and Studio use the latest release of the plugin compatible with the firmware.
 - Firmware:
+  - Add support for the M87C257 32KB address-latched EPROM (and alias NMC87C257) with address latching controlled by /AS on pin 1 via the new ALG_ADDR_1 PIO algorithm.
   - A commissioned One ROM enters the bootloader if commissioning data is present and the commissioned board type differs from the metadata's board type.
   - OTP is made read-only before starting plugins, so nothing can write OTP from this point on.  OTP can only be modified in the bootloader.
 - CLI:
