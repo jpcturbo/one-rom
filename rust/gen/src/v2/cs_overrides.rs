@@ -281,6 +281,7 @@ pub fn build_unused_addr_overrides(
     addr_layout: &AddrLayout,
     cs_data_layout: &CsDataLayout,
     alg_data: &OneromAlgDataConfig,
+    as_gpio: Option<u8>,
 ) -> Vec<u8> {
     let mut used: BTreeSet<u8> = BTreeSet::new();
 
@@ -305,6 +306,11 @@ pub fn build_unused_addr_overrides(
     // /BYTE is an input the AlgData1 data PIO reads each access.
     if let OneromAlgDataConfig::AlgData1 { byte_pin, .. } = alg_data {
         used.insert(*byte_pin + cs_data_layout.gpio_base);
+    }
+
+    // AS is an input the AlgAddr1 address PIO reads.
+    if let Some(as_gpio) = as_gpio {
+        used.insert(as_gpio);
     }
 
     let window_start = addr_layout.gpio_base;
@@ -671,7 +677,7 @@ mod tests {
         };
 
         let overrides =
-            build_unused_addr_overrides(&addr_layout, &fire24a_2364_cs_data(), &alg_data0_high());
+            build_unused_addr_overrides(&addr_layout, &fire24a_2364_cs_data(), &alg_data0_high(), None);
 
         assert_eq!(
             overrides,
@@ -697,7 +703,7 @@ mod tests {
         };
 
         let overrides =
-            build_unused_addr_overrides(&addr_layout, &fire24a_2364_cs_data(), &alg_data0_high());
+            build_unused_addr_overrides(&addr_layout, &fire24a_2364_cs_data(), &alg_data0_high(), None);
 
         assert_eq!(
             overrides,
@@ -720,7 +726,7 @@ mod tests {
         };
 
         let overrides =
-            build_unused_addr_overrides(&addr_layout, &fire24a_2364_cs_data(), &alg_data0_high());
+            build_unused_addr_overrides(&addr_layout, &fire24a_2364_cs_data(), &alg_data0_high(), None);
 
         assert!(overrides.is_empty());
     }
@@ -766,12 +772,54 @@ mod tests {
             a_minus_1_pin: 27,
         };
 
-        let overrides = build_unused_addr_overrides(&addr_layout, &cs_data_layout, &alg_data);
+        let overrides = build_unused_addr_overrides(&addr_layout, &cs_data_layout, &alg_data, None);
 
         assert_eq!(
             overrides,
             alloc::vec![encode_override(4, GpioOverride::GpioOverLow)]
         );
+    }
+
+    #[test]
+    fn unused_excludes_as_gpio() {
+        let addr_layout = AddrLayout {
+            gpio_base: 10,
+            num_addr_pins: 16,
+            x1_gpio: None,
+            x2_gpio: None,
+            addr_pin_gpios: alloc::vec![10, 11, 12, 13, 14, 15, 17, 18, 19, 20, 21, 22, 23, 24, 25],
+            excess_addr_pin_gpios: alloc::vec![],
+        };
+        let cs_data_layout = CsDataLayout {
+            gpio_base: 0,
+            base_data_pin: 0,
+            num_data_pins: 8,
+            data_pin_gpios: alloc::vec![0, 1, 2, 3, 4, 5, 6, 7],
+            base_cs_pin: 8,
+            num_cs_pins: 2,
+            cs_ignore_index: None,
+            select_lines: alloc::vec![
+                SelectLine { role: SelectRole::Ce, gpio: 9 },
+                SelectLine { role: SelectRole::Oe, gpio: 8 },
+            ],
+            commoned_lines: alloc::vec![],
+            alg_cs2: None,
+        };
+        let alg_data = OneromAlgDataConfig::AlgData0 {
+            clkdiv_int: 1,
+            clkdiv_frac: 0,
+            gpio_base: 0,
+            base_data_pin: 0,
+            word_size: 8,
+        };
+
+        // Without as_gpio, GPIO 16 is forced low because it sits in [10..26)
+        let ov_without = build_unused_addr_overrides(&addr_layout, &cs_data_layout, &alg_data, None);
+        assert_eq!(ov_without, alloc::vec![encode_override(16, GpioOverride::GpioOverLow)]);
+
+        // With as_gpio = Some(16), GPIO 16 must NOT be forced low
+        let ov_with = build_unused_addr_overrides(&addr_layout, &cs_data_layout, &alg_data, Some(16));
+        assert!(ov_with.is_empty());
     }
 
     /// Multi set with an active-low commoned line: it must be inverted just

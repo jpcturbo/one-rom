@@ -48,25 +48,28 @@ pub fn build_gpio_pull_config(
     set_type: ChipSetType,
     num_chips: usize,
     board: Board,
+    as_gpio: Option<u8>,
 ) -> Option<OneromAlgPullConfig> {
-    if !matches!(set_type, ChipSetType::Banked) {
-        return None;
-    }
+    let mut params: Vec<u8> = Vec::new();
 
-    // Pull direction is the inverse of the jumper's fitted direction.
-    let pull_up = board.x_jumper_pull() == 0;
+    if matches!(set_type, ChipSetType::Banked) {
+        // Pull direction is the inverse of the jumper's fitted direction.
+        let pull_up = board.x_jumper_pull() == 0;
 
-    let mut params: Vec<u8> = Vec::with_capacity(2);
-
-    for &gpio in board.gpios_for_x_pin(1) {
-        params.push(encode_pull(gpio, pull_up));
-    }
-
-    #[allow(clippy::collapsible_if)]
-    if num_chips >= 3 {
-        for &gpio in board.gpios_for_x_pin(2) {
+        for &gpio in board.gpios_for_x_pin(1) {
             params.push(encode_pull(gpio, pull_up));
         }
+
+        #[allow(clippy::collapsible_if)]
+        if num_chips >= 3 {
+            for &gpio in board.gpios_for_x_pin(2) {
+                params.push(encode_pull(gpio, pull_up));
+            }
+        }
+    }
+
+    if let Some(as_gpio) = as_gpio {
+        params.push(encode_pull(as_gpio, true));
     }
 
     if params.is_empty() {
@@ -108,7 +111,7 @@ mod tests {
     fn banked_2bank_pulls_x1_only() {
         let layout = layout_with_x(14, 15);
 
-        let pulls = build_gpio_pull_config(&layout, ChipSetType::Banked, 2, Board::Fire24A)
+        let pulls = build_gpio_pull_config(&layout, ChipSetType::Banked, 2, Board::Fire24A, None)
             .expect("2-bank Banked set should have pull config");
 
         assert_eq!(pulls.params, alloc::vec![encode_pull(9, true)]);
@@ -122,7 +125,7 @@ mod tests {
     fn banked_3bank_pulls_x1_and_x2() {
         let layout = layout_with_x(14, 15);
 
-        let pulls = build_gpio_pull_config(&layout, ChipSetType::Banked, 3, Board::Fire24A)
+        let pulls = build_gpio_pull_config(&layout, ChipSetType::Banked, 3, Board::Fire24A, None)
             .expect("3-bank Banked set should have pull config");
 
         assert_eq!(
@@ -136,7 +139,7 @@ mod tests {
     fn banked_4bank_pulls_x1_and_x2() {
         let layout = layout_with_x(14, 15);
 
-        let pulls = build_gpio_pull_config(&layout, ChipSetType::Banked, 4, Board::Fire24A)
+        let pulls = build_gpio_pull_config(&layout, ChipSetType::Banked, 4, Board::Fire24A, None)
             .expect("4-bank Banked set should have pull config");
 
         assert_eq!(
@@ -145,7 +148,7 @@ mod tests {
         );
     }
 
-    /// Single sets never need pull entries.
+    /// Single sets without as_gpio never need pull entries.
     #[test]
     fn single_no_pulls() {
         let layout = AddrLayout {
@@ -157,7 +160,7 @@ mod tests {
             excess_addr_pin_gpios: alloc::vec![],
         };
 
-        let pulls = build_gpio_pull_config(&layout, ChipSetType::Single, 1, Board::Fire24A);
+        let pulls = build_gpio_pull_config(&layout, ChipSetType::Single, 1, Board::Fire24A, None);
         assert_eq!(pulls, None);
     }
 
@@ -167,7 +170,24 @@ mod tests {
     fn multi_no_pulls() {
         let layout = layout_with_x(14, 15);
 
-        let pulls = build_gpio_pull_config(&layout, ChipSetType::Multi, 3, Board::Fire24A);
+        let pulls = build_gpio_pull_config(&layout, ChipSetType::Multi, 3, Board::Fire24A, None);
         assert_eq!(pulls, None);
+    }
+
+    /// Single set with as_gpio pulls up the AS pin.
+    #[test]
+    fn single_with_as_gpio_pulls_up() {
+        let layout = AddrLayout {
+            gpio_base: 10,
+            num_addr_pins: 16,
+            x1_gpio: None,
+            x2_gpio: None,
+            addr_pin_gpios: alloc::vec![10, 11, 12, 13, 14, 15, 17, 18, 19, 20, 21, 22, 23, 24, 25],
+            excess_addr_pin_gpios: alloc::vec![],
+        };
+
+        let pulls = build_gpio_pull_config(&layout, ChipSetType::Single, 1, Board::Fire28A, Some(16))
+            .expect("AS pin must be pulled up");
+        assert_eq!(pulls.params, alloc::vec![encode_pull(16, true)]);
     }
 }

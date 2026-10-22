@@ -330,6 +330,7 @@ pub fn build_alg_config(
         addr_layout,
         cs_data_layout,
         &alg_data,
+        as_gpio,
     ));
 
     let gpio_override_config = if overrides.is_empty() {
@@ -345,7 +346,7 @@ pub fn build_alg_config(
     config.alg_addr = alg_addr;
     config.alg_data = alg_data;
     config.alg_dma = alg_dma;
-    config.gpio_pull_config = build_gpio_pull_config(addr_layout, set_type, num_chips, board);
+    config.gpio_pull_config = build_gpio_pull_config(addr_layout, set_type, num_chips, board, as_gpio);
     config.gpio_override_config = gpio_override_config;
     config
 }
